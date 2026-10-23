@@ -10,10 +10,18 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Live_App-adielmag.github.io%2Fsofle--studio-38bdf8?style=flat-square&logo=googlechrome&logoColor=white" alt="Live App" />
   <img src="https://img.shields.io/badge/WebHID-Chromium-38bdf8?style=flat-square" alt="WebHID" />
   <img src="https://img.shields.io/badge/WebSerial-ZMK_Studio-818cf8?style=flat-square" alt="WebSerial" />
   <img src="https://img.shields.io/badge/Desktop-.NET_7_WinForms-f43f5e?style=flat-square" alt=".NET 7" />
   <img src="https://img.shields.io/badge/Dependencies-Zero_Build_Step-10b981?style=flat-square" alt="Zero Dependencies" />
+</p>
+
+<p align="center">
+  <a href="https://adielmag.github.io/sofle-studio/"><strong>🚀 Open Live Configurator</strong></a> ·
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#architecture--transports">Architecture</a>
 </p>
 
 ---
