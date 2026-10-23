@@ -37,7 +37,6 @@ export const HELP = {
   previewSave: ['Preview vs Save', 'Every change is a live preview on the keyboard and is lost when it loses power. Press "Save to keyboard" to write it to flash so it survives a restart.'],
   layers: ['Layers', 'A layer is a set of key meanings (BASE, LOWER, RAISE, ADJUST). Each layer can give its keys their own colour. The dot on a tab marks layers that are active on the keyboard right now; the filled dot is the one on top.'],
   board: ['Keyboard', 'Click a key to edit it. Shift+click selects a range, Ctrl+click adds or removes keys, arrow keys move around. The glow shows the key\'s LED colour (dashed outline: it falls through to a lower layer).'],
-  rightHalf: ['Right half', 'Only the left half has LEDs wired up so far. The right half is drawn greyed out as a mirror and cannot be edited yet.'],
   keyMode: ['Key mode', 'Decides what this key\'s LED does on the current layer. Transparent lets the layer below decide (usually the effect). Solid paints a fixed colour. Off turns it dark.'],
   keyColor: ['Key colour', 'Colour of this key\'s LED while this layer is on top. Brightness is limited by the keyboard\'s power safety cap.'],
   highlight: ['Highlight colour', 'The colour a pressed key flashes when typing (Fade, Ripple, or Held). When off, the keyboard uses a soft white tinted opposite to your base colour. Not used by the Color mode, which cycles its own hues.'],

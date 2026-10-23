@@ -231,14 +231,14 @@ async function flushAll() {
 const SC = 1.4, KS = 46, PAD = 14, GAP = 36, HALF_W = Math.round(255 * SC) + KS;
 const TOTAL_W = HALF_W * 2 + 2 * PAD + GAP, VB_H = Math.round(203 * SC) + KS + 2 * PAD + 6;
 const ROT = { 10: 4, 19: 12, 20: 22 }; // thumb fan, by LED id
-const LEFT = []; for (let p = 0; p < P.NUM_POS; p++) if (POS2LED[p] !== NO_LED) LEFT.push(p);
+const POSITIONS = []; for (let p = 0; p < P.NUM_POS; p++) if (POS2LED[p] !== NO_LED) POSITIONS.push(p);
 const rowOf = (p) => (p < 36 ? Math.floor(p / 12) : p < 50 ? 3 : 4);
 function keyXY(pos) {
   if (pos in MIRROR) { const led = POS2LED[MIRROR[pos]]; return [TOTAL_W - PAD - KS - Math.round(LED_X[led] * SC), PAD + Math.round(LED_Y[led] * SC), -(ROT[led] || 0)]; }
   const led = POS2LED[pos]; return led === NO_LED ? null : [PAD + Math.round(LED_X[led] * SC), PAD + Math.round(LED_Y[led] * SC), ROT[led] || 0];
 }
-const XY = {}; LEFT.forEach((p) => { XY[p] = keyXY(p); });
-const colInRow = (p) => LEFT.filter((q) => rowOf(q) === rowOf(p)).sort((a, b) => XY[a][0] - XY[b][0]).indexOf(p) + 1;
+const XY = {}; POSITIONS.forEach((p) => { XY[p] = keyXY(p); });
+const colInRow = (p) => POSITIONS.filter((q) => rowOf(q) === rowOf(p)).sort((a, b) => XY[a][0] - XY[b][0]).indexOf(p) + 1;
 
 const NS = 'http://www.w3.org/2000/svg';
 function se(tag, attrs, parent, text) {
@@ -251,17 +251,11 @@ function buildBoard() {
   const defs = se('defs', {}, svg);
   const f = se('filter', { id: 'blur', x: '-60%', y: '-60%', width: '220%', height: '220%' }, defs);
   se('feGaussianBlur', { stdDeviation: 7 }, f);
-  const ghosts = se('g', { class: 'ghosts', 'aria-hidden': 'true' }, svg);
   const encs = se('g', { 'aria-hidden': 'true' }, svg);
   const mk = (x, cls) => { const g = se('g', { class: 'enc ' + cls, transform: `translate(${x},${PAD + Math.round(152 * SC)})` }, encs); se('circle', { r: 19 }, g); se('text', {}, g, 'Enc'); };
   mk(PAD + Math.round(255 * SC) + KS / 2, 'l'); mk(TOTAL_W - PAD - Math.round(255 * SC) - KS / 2, 'r');
-  for (const pos of Object.keys(MIRROR).map(Number)) {
-    const [x, y, r] = keyXY(pos);
-    const g = se('g', { class: 'ghost', transform: `translate(${x},${y}) rotate(${r} ${KS / 2} ${KS / 2})` }, ghosts);
-    se('rect', { class: 'cap', width: KS, height: KS, rx: 9 }, g); se('text', { x: KS / 2, y: KS / 2 }, g, '');
-  }
   const keys = se('g', { class: 'keys' }, svg);
-  for (const pos of LEFT) {
+  for (const pos of POSITIONS) {
     const [x, y, r] = XY[pos];
     const g = se('g', { class: 'key', transform: `translate(${x},${y}) rotate(${r} ${KS / 2} ${KS / 2})`, tabindex: -1, role: 'button', 'data-pos': pos }, keys);
     const c = {
@@ -281,14 +275,15 @@ function buildBoard() {
   fitViewBox();
 }
 function fitViewBox() {
-  const narrow = matchMedia('(max-width: 760px)').matches;
-  $('board').setAttribute('viewBox', narrow ? `0 0 ${HALF_W + 2 * PAD} ${VB_H}` : `0 0 ${TOTAL_W} ${VB_H}`);
-  $('board').classList.toggle('narrow', narrow);
+  $('board').setAttribute('viewBox', `0 0 ${TOTAL_W} ${VB_H}`);
 }
 
 function fxColor(pos) {
   const g = S.cfg.g, fx = S.cfg.fx || { hue2: 180, sat2: 100, angle: 0, star_density: 5, star_mode: 0 };
-  const led = POS2LED[pos], x = LED_X[led] ?? 128, y = LED_Y[led] ?? 90;
+  const isRight = pos in MIRROR;
+  const led = POS2LED[pos];
+  const x = (isRight ? 255 - LED_X[led] : LED_X[led]) ?? 128;
+  const y = LED_Y[led] ?? 90;
   let hue = g.hue, sat = g.sat, val = g.val;
   if (g.effect === 8) {
     return { h: 0, s: 0, v: 0 };
@@ -312,15 +307,19 @@ function fxColor(pos) {
       break;
     }
     case 7: { // Starlight
-      if (fx.star_mode === 1) hue = (led * 47) % 360;
-      else if (fx.star_mode === 2) hue = (g.hue + diff * ((led % 7) / 6) + 360) % 360;
+      const idx = isRight ? led + 29 : led;
+      if (fx.star_mode === 1) hue = (idx * 47) % 360;
+      else if (fx.star_mode === 2) hue = (g.hue + diff * ((idx % 7) / 6) + 360) % 360;
       break;
     }
-    case 2: case 3: hue = (x / 255) * 300; break;
+    case 2: case 3: { // Spectrum / Swirl
+      hue = isRight ? ((539 - (x / 255) * 300) % 360) : ((x / 255) * 300);
+      break;
+    }
     case 5: hue = Math.hypot(x - 128, y - 90) * 2; break;
     default: break;
   }
-  return { h: Math.round(hue) % 360, s: Math.round(sat), v: val };
+  return { h: ((Math.round(hue) % 360) + 360) % 360, s: Math.round(sat), v: val };
 }
 /** What this key's LED shows on the selected layer, following TRANS down the stack (approximation, no animation). */
 function resolve(pos) {
@@ -352,19 +351,18 @@ function paintKey(pos) {
   c.g.setAttribute('aria-label', text); c.title.textContent = text;
 }
 function paintBoard() {
-  for (const p of LEFT) paintKey(p);
-  const hasSel = LEFT.find((p) => S.sel.has(p));
-  const tab = S.primary != null && cells[S.primary] ? S.primary : (hasSel ?? LEFT[0]);
-  for (const p of LEFT) cells[p].g.tabIndex = p === tab ? 0 : -1;
+  for (const p of POSITIONS) paintKey(p);
+  const hasSel = POSITIONS.find((p) => S.sel.has(p));
+  const tab = S.primary != null && cells[S.primary] ? S.primary : (hasSel ?? POSITIONS[0]);
+  for (const p of POSITIONS) cells[p].g.tabIndex = p === tab ? 0 : -1;
   $('board').parentElement.classList.toggle('board-off', !S.cfg.g.on); $('offBadge').hidden = !!S.cfg.g.on;
-  $('board').parentElement.classList.toggle('board-off', !S.cfg.g.on);
 }
 
 // ---------- selection ----------
 function setSel(set, primary) {
   S.sel = set; S.primary = primary ?? (set.size ? [...set].pop() : null);
-  for (const p of LEFT) { cells[p].g.classList.toggle('sel', set.has(p)); cells[p].g.setAttribute('aria-pressed', set.has(p)); }
-  const tab = S.primary ?? LEFT[0]; for (const p of LEFT) cells[p].g.tabIndex = p === tab ? 0 : -1;
+  for (const p of POSITIONS) { cells[p].g.classList.toggle('sel', set.has(p)); cells[p].g.setAttribute('aria-pressed', set.has(p)); }
+  const tab = S.primary ?? POSITIONS[0]; for (const p of POSITIONS) cells[p].g.tabIndex = p === tab ? 0 : -1;
   renderKey(); updateSelInfo();
 }
 function updateSelInfo() {
@@ -375,7 +373,7 @@ function updateSelInfo() {
 function rangeSel(a, b) {
   const [ax, ay] = XY[a], [bx, by] = XY[b], m = KS * 0.6;
   const x0 = Math.min(ax, bx) - m, x1 = Math.max(ax, bx) + m, y0 = Math.min(ay, by) - m, y1 = Math.max(ay, by) + m;
-  return LEFT.filter((p) => XY[p][0] >= x0 && XY[p][0] <= x1 && XY[p][1] >= y0 && XY[p][1] <= y1);
+  return POSITIONS.filter((p) => XY[p][0] >= x0 && XY[p][0] <= x1 && XY[p][1] >= y0 && XY[p][1] <= y1);
 }
 function onKeyClick(pos, e) {
   const add = e.ctrlKey || e.metaKey;
@@ -386,7 +384,7 @@ function onKeyClick(pos, e) {
 }
 function neighbor(pos, key) {
   const [cx, cy] = XY[pos]; let best = null, bs = Infinity;
-  for (const p of LEFT) {
+  for (const p of POSITIONS) {
     if (p === pos) continue; const dx = XY[p][0] - cx, dy = XY[p][1] - cy;
     const [along, across] = key === 'ArrowRight' ? [dx, dy] : key === 'ArrowLeft' ? [-dx, dy] : key === 'ArrowDown' ? [dy, dx] : [-dy, dx];
     if (along < 8 || Math.abs(across) > along * 1.2 + 14) continue;
@@ -401,7 +399,7 @@ function onBoardKey(e) {
     e.preventDefault(); const n = neighbor(pos, e.key); if (n == null) return;
     if (e.shiftKey) setSel(new Set([...S.sel, pos, n]), n); else setSel(new Set([n]), n);
     cells[n].g.focus();
-  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') { e.preventDefault(); setSel(new Set(LEFT), pos); }
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') { e.preventDefault(); setSel(new Set(POSITIONS), pos); }
 }
 
 // ---------- widgets: radios, collapse ----------
@@ -740,8 +738,8 @@ function initUi() {
   $('gOn').onclick = () => editGlobal({ on: S.cfg.g.on ? 0 : 1 });
   $('gSpeed').addEventListener('input', () => { $('gSpeedO').textContent = $('gSpeed').value; editGlobal({ speed: Number($('gSpeed').value) }, 'gspeed'); });
 
-  $('selAll').onclick = () => setSel(new Set(LEFT), S.primary ?? LEFT[0]);
-  $('selRow').onclick = () => { if (S.primary != null) setSel(new Set(LEFT.filter((p) => rowOf(p) === rowOf(S.primary))), S.primary); };
+  $('selAll').onclick = () => setSel(new Set(POSITIONS), S.primary ?? POSITIONS[0]);
+  $('selRow').onclick = () => { if (S.primary != null) setSel(new Set(POSITIONS.filter((p) => rowOf(p) === rowOf(S.primary))), S.primary); };
   $('selNone').onclick = () => setSel(new Set(), null);
   $('btnCopy').onclick = () => {
     const src = Number($('copySrc').value); if (Number.isNaN(src)) return;
@@ -831,7 +829,7 @@ async function boot() {
     await guarded(() => useDevice(demoHid()));
     if (params.has('fx')) editGlobal({ effect: Number(params.get('fx')) });
     const selPos = params.has('key') ? Number(params.get('key')) : 14;
-    if (LEFT.includes(selPos)) setSel(new Set([selPos]), selPos);
+    if (POSITIONS.includes(selPos)) setSel(new Set([selPos]), selPos);
     return;
   }
   if (!P.hidSupported()) {

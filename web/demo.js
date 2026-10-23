@@ -9,14 +9,16 @@ export function demoConfig() {
   c.layers[1] = { ...c.layers[1], react: 1, hue: 40, sat: 100, val: 40 };
   c.layers[3].react = 0;
   const set = (l, p, e) => { c.keys[l][p] = { hue: 0, sat: 100, val: 100, ...e }; };
-  // BASE: WASD cluster + modifiers
+  // BASE: WASD cluster + modifiers (left), arrows + modifiers (right)
   for (const p of [14, 25, 26, 27]) set(0, p, { mode: 2, hue: 20, sat: 100, val: 40 });
   set(0, 0, { mode: 2, hue: 0, sat: 100, val: 40 }); set(0, 12, { mode: 2, hue: 0, sat: 100, val: 40 });
   for (const p of [50, 51, 52, 53, 54]) set(0, p, { mode: 2, hue: 280, sat: 80, val: 35 });
+  for (const p of [55, 56, 57, 58, 59]) set(0, p, { mode: 2, hue: 280, sat: 80, val: 35 });
   set(0, 36, { mode: 4, hue: 150, sat: 100, val: 30 }); set(0, 24, { mode: 1 });
+  set(0, 49, { mode: 4, hue: 150, sat: 100, val: 30 }); set(0, 23, { mode: 1 });
   // LOWER: numbers row cyan, F-keys violet, rest transparent
-  for (let p = 12; p < 23; p++) set(1, p, { mode: 2, hue: 190, sat: 100, val: 40 });
-  for (let p = 1; p < 11; p++) set(1, p, { mode: 2, hue: 266, sat: 90, val: 40 });
+  for (let p = 12; p < 24; p++) set(1, p, { mode: 2, hue: 190, sat: 100, val: 40 });
+  for (let p = 1; p < 12; p++) set(1, p, { mode: 2, hue: 266, sat: 90, val: 40 });
   set(1, 0, { mode: 2, hue: 0, sat: 100, val: 40 });
   // RAISE: arrows
   for (const p of [20, 31, 32, 33]) set(2, p, { mode: 2, hue: 130, sat: 100, val: 40 });

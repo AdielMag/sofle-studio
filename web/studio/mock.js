@@ -16,8 +16,9 @@ export function createMock(lockedMs = 0) {
   const E = () => Object.assign(new Error('locked'), { code: 1 });
   const row = (x0, y0, n, dx = 100) => Array.from({ length: n }, (_, i) => ({ x: x0 + i * dx, y: y0, w: 100, h: 100, r: 0, rx: 0, ry: 0 }));
   const keys = [];
-  for (let r = 0; r < 4; r++) keys.push(...row(0, r * 100, 6), ...row(800, r * 100, 6));
-  keys.push(...row(300, 420, 3), ...row(1000, 420, 3).reverse());
+  for (let r = 0; r < 3; r++) keys.push(...row(0, r * 100, 6), ...row(800, r * 100, 6));
+  keys.push(...row(0, 300, 6), { x: 620, y: 300, w: 80, h: 80, r: 0, rx: 0, ry: 0 }, { x: 720, y: 300, w: 80, h: 80, r: 0, rx: 0, ry: 0 }, ...row(800, 300, 6));
+  keys.push(...row(100, 420, 5), ...row(800, 420, 5));
   const letters = 'QWERTYUIOPASDFGHJKLZXCVBNM1234567890';
   const mk = (i) => ({ id: 1, p1: usage(7, 4 + (i % 26)), p2: 0 });
   let nextId = 4;
