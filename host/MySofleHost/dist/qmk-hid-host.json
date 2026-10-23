@@ -1,0 +1,6 @@
+{
+  "devices": [
+    { "name": "Sofle", "productId": "0x615E" }
+  ],
+  "layouts": ["en", "he"]
+}

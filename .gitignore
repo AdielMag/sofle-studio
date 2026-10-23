@@ -1,0 +1,15 @@
+# Build artifacts
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Logs and temp
+*.log
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
