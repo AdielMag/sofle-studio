@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="web/icon.svg" width="96" height="96" alt="Sofle Studio Logo" />
+  <img src="web/icon.svg" width="80" height="80" alt="Sofle Studio Logo" />
 </p>
 
 <h1 align="center">Sofle Studio</h1>
@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Live_App-adielmag.github.io%2Fsofle--studio-38bdf8?style=flat-square&logo=googlechrome&logoColor=white" alt="Live App" />
+  <a href="https://adielmag.github.io/sofle-studio/"><img src="https://img.shields.io/badge/Live_App-Open_Configurator-38bdf8?style=flat-square&logo=googlechrome&logoColor=white" alt="Live App" /></a>
   <img src="https://img.shields.io/badge/WebHID-Chromium-38bdf8?style=flat-square" alt="WebHID" />
   <img src="https://img.shields.io/badge/WebSerial-ZMK_Studio-818cf8?style=flat-square" alt="WebSerial" />
   <img src="https://img.shields.io/badge/Desktop-.NET_7_WinForms-f43f5e?style=flat-square" alt=".NET 7" />
@@ -21,154 +21,115 @@
   <a href="https://adielmag.github.io/sofle-studio/"><strong>🚀 Open Live Configurator</strong></a> ·
   <a href="#quick-start">Quick Start</a> ·
   <a href="#features">Features</a> ·
-  <a href="#architecture--transports">Architecture</a>
+  <a href="#try-in-demo-mode">Demo Mode</a> ·
+  <a href="#architecture--protocols">Architecture</a>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/lighting.png" alt="Sofle Studio Lighting Configurator" width="100%" />
 </p>
 
 ---
 
 ## Overview
 
-**Sofle Studio** provides an all-in-one control center for Sofle v2 keyboards running [ZMK Firmware](https://zmk.dev/) on nice!nano v2 microcontrollers. It merges two major capabilities into a single unified interface:
+**Sofle Studio** is an all-in-one control center for Sofle v2 keyboards running [ZMK Firmware](https://zmk.dev/) on nice!nano v2 microcontrollers. It unites hardware lighting and key remapping into a fast, modern web app with an optional Windows background companion:
 
-1. **Per-Key RGB Configurator**: Direct hardware control over global lighting animations, dual-stop gradients, per-layer key colors, and reactive keypress effects via USB Raw HID.
-2. **In-App Keymap Editor**: Full in-browser replacement for ZMK Studio using Web Serial and Protobuf RPC over USB CDC ACM. Live-edit key bindings, manage layers, and save changes to onboard flash without flashing new firmware.
-3. **Windows Tray Companion (`MySofleHost`)**: A lightweight Windows background app that sits in your hidden icons, serves the configurator offline in borderless desktop app mode, and actively pushes your Windows keyboard language (**EN** / **HE**), system volume, and time to the Sofle nice!oled screen.
+- **Per-Key RGB Configurator**: Control global animations, dual-stop gradients, per-layer key colors, and reactive keypress effects over WebHID.
+- **In-App Keymap Editor**: Full ZMK Studio client over Web Serial. Live-edit key bindings, manage layers, and commit changes directly to onboard flash.
+- **Windows Tray Companion (`MySofleHost`)**: Background tray app that synchronizes your Windows keyboard language (**EN** / **HE**) to the nice!oled display and launches the studio in borderless desktop mode.
 
 ---
 
 ## Features
 
-### 🌈 Lighting & RGB Engine
-- **9 Global Effects**: Solid, Breathe, Spectrum, Swirl, Wave, Radial, Gradient, Starlight, and None (Typing-Only).
-- **Dual-Stop Gradient Editor**: Interactive color stop handles directly on the preview gradient bar, 45° snapping direction dial, and one-click color swap.
-- **Per-Layer Key Palette**: Configure every key individually with solid colors, transparent fallthrough, effect inheritance, or blackout.
-- **Global Reactive Keypress**: Wave, Ripple, Held, and Color highlight animations triggered live on key strikes.
-- **Safe Hardware Limits**: Master brightness capped at firmware-safe maximum (`40%`) to protect battery and controller power rails.
+### 🌈 Per-Key Lighting & RGB Engine
+
+Custom firmware engine (`rgbpk`) providing real-time lighting control without recompiling firmware:
+
+- **9 Global Effects**: Solid, Breathe, Spectrum, Swirl, Wave, Radial, Gradient, Starlight, and Typing-Only.
+- **Interactive Dual-Stop Gradient Editor**: Visual color stop handles, 360° direction dial, preset themes (Neon, Fire, Lavender), and color swap.
+- **Per-Layer Key Palette**: Paint keys individually with solid colors, transparent fallthrough, effect inheritance, or blackout.
+- **Reactive Typing Animations**: Ripple, Wave, Held, and Color highlight animations triggered on keypress.
+- **Safe Hardware Limits**: Firmware-enforced 40% master brightness ceiling to protect battery life and power rails.
+
+<p align="center">
+  <img src="docs/screenshots/gradient.png" alt="Interactive Gradient & Color Editor" width="100%" />
+</p>
 
 ### ⌨️ Keymap Studio (ZMK RPC)
-- **Live Binding Edits**: Click any key to inspect and change its behavior (Key Press, Mod-Tap, Momentary Layer, Bluetooth, Media, etc.).
-- **Searchable Keycode Picker**: Quick filter over standard HID keyboard, keypad, consumer, and modifier usage tables with checkbox modifiers (`Ctrl`, `Shift`, `Alt`, `Gui`).
+
+Integrated ZMK Studio client communicating via Web Serial and Protobuf RPC:
+
+- **Live Key Binding**: Click any key to inspect and assign behaviors (Key Press, Mod-Tap, Momentary Layer, Bluetooth, Media, etc.).
+- **Searchable Keycode Picker**: Filter standard HID keyboard, keypad, consumer, and modifier keys with one-click modifier flags (`Ctrl`, `Shift`, `Alt`, `Gui`).
 - **Layer Management**: Add, remove, rename, and reorder keyboard layers.
-- **Persistent Flash Storage**: Test changes in RAM immediately; commit permanently via **Save keymap** or revert with **Discard**.
-- **Guided Unlock Banner**: Automatically detects keyboard lock state and provides step-by-step unlock guidance with live auto-load.
+- **RAM Preview & Flash Persistence**: Changes apply immediately in RAM. Commit permanently to onboard storage with **Save keymap** or revert with **Discard**.
+- **Guided Unlock State**: Live lock detection with step-by-step unlock guidance.
+
+<p align="center">
+  <img src="docs/screenshots/keymap.png" alt="Keymap Studio Editor" width="100%" />
+</p>
 
 ### 🪟 Windows Tray Companion (`MySofleHost`)
-- **Hidden Icons Tray Presence**: Sits quietly in the notification area with a custom keyboard icon.
-- **Active EN / HE OLED Sync**: Monitors the foreground Windows input language and streams layout changes over Raw HID to the keyboard's OLED display in real time.
-- **Offline Desktop App Mode**: Serves local assets via an embedded static HTTP server and launches Microsoft Edge or Chrome in `--app` mode (no URL bar, no browser tabs, native desktop feel).
-- **Auto-Start**: One-click "Start with Windows" registry autostart toggle in the tray menu.
+
+- **System Tray Presence**: Sits quietly in the notification area with a dedicated keyboard status icon.
+- **Active EN / HE OLED Sync**: Monitors Windows foreground input language and streams layout changes over Raw HID to the keyboard's OLED screen.
+- **Offline Desktop App Mode**: Serves local files through an embedded micro-server and opens Microsoft Edge or Chrome in `--app` mode (no browser address bar or tabs).
+- **Auto-Start**: One-click "Start with Windows" autostart toggle in the tray context menu.
 
 ---
 
 ## Quick Start
 
-### Option A: Web App (Any Chromium Browser)
+### Option A: Web App (Chromium Browsers)
 
-No installation required. Open in Google Chrome, Microsoft Edge, Brave, or Opera:
+Works in Chrome, Edge, Brave, or Opera without installing anything:
 
-```bash
-# Serve the web directory with any static server:
-cd web
-python -m http.server 8000
-# Open http://localhost:8000 in your browser
-```
-
-1. Click **Connect** (or switch to **Keymap** and click **Connect serial port**).
-2. Choose your keyboard from the browser permission prompt.
-3. If the keyboard is locked, hold <kbd>MO L</kbd> (left thumb cluster) and press <kbd>Studio</kbd> to unlock.
+1. Open [**adielmag.github.io/sofle-studio**](https://adielmag.github.io/sofle-studio/) (or serve `web/` locally: `cd web && python -m http.server 8000`).
+2. Click **Connect** (or switch to **Keymap** and click **Connect serial port**).
+3. Select your keyboard in the browser prompt.
+4. If locked, hold <kbd>MO L</kbd> (left thumb cluster) and tap <kbd>Studio</kbd> to unlock.
 
 > [!NOTE]
-> WebHID and Web Serial require a secure context (`https://` or `http://localhost` / `http://127.0.0.1`).
+> WebHID and Web Serial require a secure context (`https://` or `http://localhost`).
 
 ---
 
 ### Option B: Windows Desktop Tray App
 
-Download or clone the repository on Windows:
-
 1. Double-click `Launch-Sofle.bat` (or run `host/MySofleHost/dist/MySofleHost.exe`).
-2. Look in the Windows taskbar hidden icons (click the `^` chevron).
-3. Click the keyboard icon to launch the standalone configurator window.
-4. Language switching (`Alt+Shift` or `Win+Space`) immediately reflects on your keyboard's OLED screen.
+2. Find the keyboard icon in the taskbar hidden icons (chevron `^`).
+3. Click the icon to launch the standalone desktop studio window.
+4. Switching Windows layout (`Alt+Shift` or `Win+Space`) instantly reflects on the OLED display.
 
 ---
 
-## Architecture & Transports
+## Try in Demo Mode
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Sofle Studio                         │
-│   ┌───────────────────────────┐ ┌───────────────────────┐   │
-│   │    Lighting Tab (HID)     │ │   Keymap Tab (Serial) │   │
-│   └─────────────┬─────────────┘ └───────────┬───────────┘   │
-└─────────────────┼───────────────────────────┼───────────────┘
-                  │ Raw HID (0xFF60 / 0x61)   │ Web Serial (CDC ACM)
-                  │ Magic 0x52, Chunks <= 16B │ Protobuf RPC (SOF 0xAB)
-                  ▼                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Sofle Keyboard (ZMK)                     │
-│   ┌───────────────────────────┐ ┌───────────────────────┐   │
-│   │     rgbpk Engine          │ │      ZMK Studio       │   │
-│   │  (29 LEDs/half, NVS flash)│ │ (Keymap, Layers, RPC) │   │
-│   └───────────────────────────┘ └───────────────────────┘   │
-│                 ▲                                           │
-│                 │ Layout Notifications (0xAC: EN=0, HE=1)   │
-│   ┌─────────────┴─────────────┐                             │
-│   │  MySofleHost Background   │ ◄── Windows Foreground      │
-│   │  (Tray & Layout Monitor)  │     Language Hooks          │
-│   └───────────────────────────┘                             │
-└─────────────────────────────────────────────────────────────┘
-```
+Test the complete UI directly in your browser without hardware connected:
 
-| Subsystem | Transport | Protocol | Target |
+- 🎨 [**Preview Lighting Configurator**](https://adielmag.github.io/sofle-studio/?demo)
+- ⌨️ [**Preview Keymap Studio**](https://adielmag.github.io/sofle-studio/?demo&view=keymap)
+
+---
+
+## Architecture & Protocols
+
+| Subsystem | Transport | Protocol | Description |
 |---|---|---|---|
-| **Lighting** | WebHID (`navigator.hid`) | Custom raw HID packet (`0x52`), 16-byte chunked frames | Central half RGB driver (`rgbpk`) |
-| **Keymap** | Web Serial (`navigator.serial`) | ZMK Studio Protobuf RPC (`0xAB` SOF, `0xAD` EOF) | ZMK Studio subsystem |
-| **Language Sync** | Raw HID (Win32) | `0xAC` layout notifications (`0` = EN, `1` = HE) | `nice-oled` display widget |
+| **Lighting** | WebHID (`navigator.hid`) | Raw HID chunked packets | Hardware RGB controls, animations, and layer palettes (`rgbpk`) |
+| **Keymap** | Web Serial (`navigator.serial`) | ZMK Protobuf RPC | Live layer editing, key behaviors, and NVS flash storage |
+| **OLED Sync** | Raw HID (Win32) | Background layout notifications | Streams active language (EN/HE) to `nice-oled` display |
+
+Detailed wire specifications and implementation references:
+
+- 📘 [**Raw HID Protocol Reference**](docs/PROTOCOL.md) — Frame formats, command byte tables, CRC integrity, and flash layout.
+- 📙 [**ZMK Studio Protocol Reference**](docs/STUDIO.md) — CDC ACM serial transport, Protobuf RPC packet framing, and state machines.
+- 📗 [**Windows Companion Guide**](docs/TRAY_APP.md) — Tray application setup, registry autostart, and layout monitoring.
 
 ---
 
-## Repository Structure
+## License
 
-```
-sofle-studio/
-├── web/                     # Web configurator (Zero build step, vanilla ES modules)
-│   ├── index.html           # Main UI container & SVG icon sprites
-│   ├── style.css            # Dark mode UI styles & responsive layout
-│   ├── app.js               # Lighting application logic & WebHID driver
-│   ├── keymap.js            # Keymap editor UI & interactive board renderer
-│   ├── picker.js            # Color wheel & gradient dial components
-│   ├── icon.svg             # Vector brand icon & favicon
-│   └── studio/              # ZMK Studio subsystem
-│       ├── pb.js            # Minimal zero-dep Protobuf wire codec & framer
-│       ├── client.js        # High-level ZMK Studio RPC client
-│       ├── keycodes.js      # HID keyboard & consumer usage dictionaries
-│       └── mock.js          # In-memory simulated keyboard for demo mode
-├── host/                    # Windows companion app
-│   └── MySofleHost/         # .NET 7 WinForms system tray application
-│       ├── Program.cs       # Tray context, embedded HTTP server & process supervisor
-│       ├── publish.ps1      # Self-contained single-file publisher
-│       └── dist/            # Portable runtime binaries (`MySofleHost.exe`)
-├── docs/                    # Technical specifications
-│   ├── STUDIO.md            # ZMK Studio RPC wire protocol reference
-│   └── TRAY_APP.md          # Windows tray companion user guide
-└── Launch-Sofle.bat         # Single-click launcher for Windows
-```
-
----
-
-## Testing & Validation
-
-The web app includes an offline test suite for the protobuf codec, HID chunking, and CRC-16 integrity:
-
-```bash
-cd web
-node test.mjs
-```
-
-You can preview and test the complete UI in demo mode without hardware connected:
-
-```
-http://localhost:8000/?demo
-http://localhost:8000/?demo&view=keymap
-```
+MIT License. Designed for the [Sofle RGB](https://github.com/josefadamcik/SofleKeyboard) keyboard running [ZMK Firmware](https://zmk.dev/).
